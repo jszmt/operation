@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+	<div class="content-wrap">
+		<div class="container">
+			<div class="row clearfix">
+				<div class="col-md-12 column">
+					<h1 class="text-center">
+						请选择数据源
+					</h1>
+					<form class="form-horizontal m" style="margin-top:50px" id="signupForm">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据源名称：</label>
+							<div class="col-sm-8">
+								<div class="icheckbox-blue">
+									<select class="form-control" id="datasourceId" name="datasourceId" onchange="chooseDataSource()">
+										<option value="">请选择</option>
+										<label th:each="m : ${datasourceList}">
+											<option th:value="${m.id}" ><b th:text="${m.name}"></b></option>
+										</label>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据源类型：</label>
+							<div class="col-sm-8">
+								<input id="type" name="type" class="form-control" readonly="readonly">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">主机名或ip地址：</label>
+							<div class="col-sm-8">
+								<input id="ip" name="ip" class="form-control" readonly="readonly">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">端口：</label>
+							<div class="col-sm-8">
+								<input id="port" name="port" class="form-control" readonly="readonly">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据库名称：</label>
+							<div class="col-sm-8">
+								<input id="databaseName" name="databaseName" class="form-control" readonly="readonly" >
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">连接状态：</label>
+							<div class="col-sm-8">
+								<input id="status" name="status" class="form-control" readonly="readonly">
+							</div>
+						</div>
+
+						<div class="form-group" >
+							<div class="form-control-static col-sm-offset-8" style="margin-left: 300px;margin-right: 110px">
+								<button type="submit" class="btn btn-primary btn-block">下一步</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	<div th:include="include :: footer"></div>
+	<script type="text/javascript" th:inline="javascript">
+        //获取controller 中model的值
+        var datasourceList = [[${datasourceList}]];
+        //操作类型
+        var operType = [[${type}]];
+        $(function() {
+            //绑定提交时的自定义表单校验方法，若使用remote只会校验一次 使用时在rules中的对应字段设置  datasource:true
+            jQuery.validator.addMethod("datasource", function (value, element) {
+                var poin = false;
+                $.ajax({
+                    url : "/oper/datasource/connection/"+$('#datasourceId').val(),
+                    type:"POST",
+                    async : false,
+                    success : function(data){
+                        poin = data;
+                    }
+                });
+                return poin;
+            });
+            validateRule();
+        });
+        $.validator.setDefaults({
+            submitHandler : function() {
+                window.location.href="/oper/execute/jump?type="+operType+"&datasourceId="+$('#datasourceId').val();
+            }
+        });
+
+        function validateRule() {
+            var icon = "<i class='fa fa-times-circle'></i> ";
+
+            $("#signupForm").validate({
+                rules:{
+                    datasourceId:{
+                        required:true,
+                        datasource:true
+        			}
+                },
+                messages: {
+                    "datasourceId": {
+                        required: "请选择数据源",
+                        datasource: "数据源连接失败"
+                    }
+                },
+            });
+
+        }
+
+		function chooseDataSource(){
+            var datasourceId=$('#datasourceId').val();
+            var datasource = {};
+            for(var index in datasourceList){
+                if(datasourceId == datasourceList[index].id){
+                    datasource = datasourceList[index];
+                    break;
+				}
+            }
+			$("#ip").val(datasource.ip);
+            $("#type").val(datasource.type);
+            $("#port").val(datasource.port);
+            $("#databaseName").val(datasource.databaseName);
+            $("#status").val(connection(datasource.id));
+		}
+        function connection(id){
+		    if(!id){
+		        return "";
+			}
+		    var result = null;
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : "/oper/datasource/connection/"+id,
+                async : false,
+                error : function(request) {
+                    alert("Connection error");
+                },
+                success : function(data) {
+                    if(data == true){
+                        result = "连接成功";
+					}else{
+                        result = "连接异常";
+					}
+                }
+            });
+            return result;
+        }
+        //js获取项目根路径，如： http://localhost:8083/uimcardprj
+        function getRootPath(){
+            //获取当前网址，如： http://localhost:8083/uimcardprj/share/meun.jsp
+            var curWwwPath=window.document.location.href;
+            //获取主机地址之后的目录，如： uimcardprj/share/meun.jsp
+            var pathName=window.document.location.pathname;
+            var pos=curWwwPath.indexOf(pathName);
+            //获取主机地址，如： http://localhost:8083
+            var localhostPaht=curWwwPath.substring(0,pos);
+            //获取带"/"的项目名，如：/uimcardprj
+           // var projectName=pathName.substring(0,pathName.substr(1).indexOf('/')+1);
+            return(localhostPaht);
+        }
+	</script>
+</body>
+</html>

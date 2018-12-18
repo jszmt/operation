@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+	<div class="content-wrap">
+		<div class="container">
+			<div class="row clearfix" id="">
+				<div class="col-md-12 column" id="element">
+						<form  class="form-horizontal m" id="sqlform">
+							<input type="hidden" th:value="*{datasourceId}" id="datasourceId" name="datasourceId">
+							<div class="form-group">
+								<div class="form-control-static col-sm-offset-9" style="margin-left: -8%;margin-top: -3%;">
+									<button type="button" class="btn btn-primary" id="invoke">运行</button>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-8">
+									<textarea style="width: 183%;margin-left: -112px;margin-top: -20px;font-size: 18px" rows="16" id="content"  name="content"></textarea>
+									<b id="errorMsg"></b>
+								</div>
+							</div>
+						</form>
+						<div class="bootstrap-table" style="    margin-left: -98px;margin-right: -98px;margin-top:-15px">
+							<table id="dataTable" class="table table-hover table-bordered table-striped"></table>
+						</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript">
+	$("#invoke").click(function(){
+        execute();
+	})
+
+	function execute(){
+        var dataFormJson=$("#sqlform").serialize();
+        $.ajax({
+            cache : true,
+            type : "POST",
+            url : "/oper/sql/select",
+            data : dataFormJson,
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data.code != "0"){
+                    $("#errorMsg").text("");
+                    $("#errorMsg").text(data.msg);
+				}else{
+                    showResult(data.data)
+				}
+
+            }
+        });
+    }
+    function  showResult(data){
+        $("#dataTable").bootstrapTable('destroy');
+		var columns = [];
+        for (var item in data[0]) {
+        	var column = {};
+        	column.field = item;
+        	column.title = item;
+            columns.push(column);
+        }
+        var listData = [];
+        for (var item in data) {
+            listData.push(data[item]);
+        }
+        var options = {
+            striped : true, // 设置为true会有隔行变色效果
+            exportDataType: "all",   //导出文件方式  支持: 'basic', 'all', 'selected'. basic：本页数据，all，获取服务器所有数据，selected,本页选择行数据
+            showExport: true,  //是否显示导出按钮
+            buttonsAlign:"left",  //按钮位置
+            exportTypes:[ 'csv', 'txt', 'xlsx'],  //导出文件支持: 'json', 'xml', 'png', 'csv', 'txt', 'sql'，'doc', 'excel', 'xlsx', 'pdf'
+            exportOptions:{
+                fileName: '数据导出',              //文件名称设置
+                worksheetName: 'Sheet1',          //表格工作区名称
+                excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],
+            },
+            showToggle:true,
+			clickToSelect: true,
+            iconSize : 'outline',
+            columns:columns,
+			data:listData
+		}
+        $("#dataTable").bootstrapTable(options);
+    }
+</script>
+
+</body>
+</html>

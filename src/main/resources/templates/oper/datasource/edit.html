@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox-content">
+					<form class="form-horizontal m-t" id="signupForm" th:object="${datasource}">
+						<input id="id" name="id" th:value="${id}"
+							type="hidden">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据源名称：</label>
+							<div class="col-sm-8">
+								<input id="name" name="name" class="form-control" type="text" th:value="*{name}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据源描述：</label>
+							<div class="col-sm-8">
+								<input id="descripion" name="descripion" class="form-control" type="text" th:value="*{descripion}">
+							</div>
+						</div>
+						<div class="form-group">
+								<label class="col-sm-3 control-label">数据源类型：</label>
+								<div class="col-sm-8">
+									<select class="form-control" name="type">
+										<option  th:field="*{type}" value="oracle">oracle</option>
+										<option  th:field="*{type}" value="mysql">mysql</option>
+									</select>
+								</div>
+							</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">ip：</label>
+							<div class="col-sm-8">
+								<input id="ip" name="ip" class="form-control" th:value="*{ip}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">端口：</label>
+							<div class="col-sm-8">
+								<input id="port" name="port" class="form-control" th:value="*{port}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据库名称·：</label>
+							<div class="col-sm-8">
+								<input id="databaseName" name="databaseName" class="form-control" th:value="*{databaseName}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据源用户名:</label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="username" name="username" th:value="*{username}"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label ">数据源密码：</label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="password" name="password" th:value="*{password}"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-8 col-sm-offset-6">
+								<button type="submit" class="btn btn-primary">提交</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript">
+        $(function() {
+            validateRule();
+        });
+        $.validator.setDefaults({
+            submitHandler : function() {
+                update();
+            }
+        });
+
+        function update() {
+            var datasource = $('#signupForm').serialize();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : "/oper/datasource/update",
+                data : datasource, // 你的formid
+                async : false,
+                error : function(request) {
+                    alert("Connection error");
+                },
+                success : function(r) {
+                    if (r.code == 0) {
+                        parent.layer.msg(r.msg);
+                        //刷新页面
+                        window.parent.location.reload();
+                        parent.reLoad();
+                        var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
+                        parent.layer.close(index);
+                    } else {
+                        parent.layer.msg(r.msg);
+                    }
+
+                }
+            });
+        }
+        function validateRule() {
+            var icon = "<i class='fa fa-times-circle'></i> ";
+            $("#signupForm").validate({
+                rules:{
+                    name:{
+                        required:true,
+                    },
+                    ip:{
+                        required:true,
+                    },
+                    port:{
+                        required:true,
+                    },
+                    databaseName:{
+                        required:true,
+                    },
+                    password:{
+                        required:true
+                    },
+                    username:{
+                        required:true
+                    }
+                },
+                messages: {
+                    "name": {
+                        remote: "用户名不能为空"
+                    },
+                    "ip": {
+                        remote: "ip不能为空"
+                    },
+                    "port": {
+                        remote: "端口不能为空"
+                    },
+                    "databaseName": {
+                        remote: "数据库不能为空"
+                    },
+                    "password":{
+                        remote: "数据库密码不能为空"
+                    },
+                    "username":{
+                        remote: "数据库连接用户名不能为空"
+                    }
+                },
+            });
+        }
+
+        function close(){
+            var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
+			parent.layer.close(index);
+		}
+	</script>
+</body>
+</html>

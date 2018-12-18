@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="ibox">
+				<div class="ibox-body">
+					<div class="fixed-table-toolbar">
+						<!--<div class="columns pull-left">
+							<button shiro:hasPermission="oper:datasource:add" type="button"
+									class="btn  btn-primary" onclick="add()">
+								<i class="fa fa-plus hidden" aria-hidden="true"></i>添加
+							</button>
+						</div>-->
+						<div class="columns pull-right">
+							<button class="btn btn-success" onclick="reLoad()">查询</button>
+						</div>
+
+						<div class="columns pull-right col-md-2 nopadding">
+							<input id="searchName" type="text" class="form-control"
+								   placeholder="业务编号">
+						</div>
+					</div>
+					<table id="dataSourceTable" data-mobile-responsive="true">
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript">
+    var prefix = "/oper/history"
+    $(function() {
+        load();
+    });
+
+    function load() {
+        $('#dataSourceTable')
+            .bootstrapTable(
+                {
+                    method : 'get', // 服务器数据的请求方式 get or post
+                    url : prefix + "/list", // 服务器数据的加载地址
+                    // showRefresh : true,
+                    // showToggle : true,
+                    // showColumns : true,
+                    iconSize : 'outline',
+                    toolbar : '#exampleToolbar',
+                    striped : true, // 设置为true会有隔行变色效果
+                    dataType : "json", // 服务器返回的数据类型
+                    pagination : true, // 设置为true会在底部显示分页条
+                    // queryParamsType : "limit",
+                    // //设置为limit则会发送符合RESTFull格式的参数
+                    singleSelect : false, // 设置为true将禁止多选
+                    // contentType : "application/x-www-form-urlencoded",
+                    // //发送到服务器的数据编码类型
+                    pageSize : 10, // 如果设置了分页，每页数据条数
+                    pageNumber : 1, // 如果设置了分布，首页页码
+                    // search : true, // 是否显示搜索框
+                    showColumns : false, // 是否显示内容下拉框（选择显示的列）
+                    sidePagination : "server", // 设置在哪里进行分页，可选值为"client" 或者
+                    // "server"
+                    queryParams : function(params) {
+                        return {
+                            // 说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
+                            limit : params.limit,
+                            offset : params.offset,
+                            applCde : $('#searchName').val()
+                        };
+                    },
+                    // //请求服务器数据时，你可以通过重写参数的方式添加一些额外的参数，例如 toolbar 中的参数 如果
+                    // queryParamsType = 'limit' ,返回参数必须包含
+                    // limit, offset, search, sort, order 否则, 需要包含:
+                    // pageSize, pageNumber, searchText, sortName,
+                    // sortOrder.
+                    // 返回false将会终止请求
+                    columns : [
+                        {
+                            checkbox: true
+                        },
+                        {
+                            field: 'id',
+                            title: '序号',
+                            visible: false
+                        },
+                        {
+                            field: 'applCde',
+                            title: '业务编号'
+                        },
+                        {
+                            field: 'type',
+                            title: '操作类型'
+                        },
+                        {
+                            field: 'dataSourceName',
+                            title: '数据源名称'
+                        },
+                        {
+                            field: 'operTables',
+                            title: '操作表'
+                        },
+                        {
+                            field: 'crtTime',
+                            title: '操作时间'
+                        },
+                        {
+                            title : '操作',
+                            field : 'oper',
+                            align : 'center',
+                            formatter : function(value, row, index) {
+                                var e = '<a  class="btn btn-primary btn-sm" href="#" mce_href="#" title="查看" onclick="view(\''
+                                    + row.id
+                                    + '\')">查看</a> ';
+                                var d = '<a class="btn btn-warning btn-sm" href="#" title="备份"  mce_href="#" onclick="backup(\''
+                                    + row.id
+                                    + '\')">备份</a> ';
+                                return e + d ;
+                            }
+                        } ]
+                });
+    }
+    function reLoad() {
+        $('#exampleTable').bootstrapTable('refresh');
+    }
+
+    function view(id) {
+        window.location.href = "/oper/execute/history/info?id="+id;
+    }
+
+    function backup(id) {
+        window.location.href = prefix + '/backup?id=' + id;
+    }
+
+</script>
+</body>
+</html>

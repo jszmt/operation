@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox-content">
+					<form class="form-horizontal m-t" id="signupForm" th:object="${record}">
+						<input id="id" name="id" th:value="${id}" type="hidden">
+						<div class="form-group">
+							<label class="col-sm-1 control-label">业务编号：</label>
+							<div class="col-sm-12">
+								<input id="applCde" name="applCde" class="form-control" type="text" th:value="*{applCde}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-1 control-label">操作类型：</label>
+							<div class="col-sm-12">
+								<input id="type" name="type" class="form-control" type="text" th:value="*{type}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-1 control-label">操作表：</label>
+							<div class="col-sm-12">
+								<input id="operTables" name="operTables" class="form-control" type="text" th:value="*{operTables}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-1 control-label">备注：</label>
+							<div class="col-sm-12">
+								<input id="remark" name="remark" class="form-control" type="text" th:value="*{remark}">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-1 control-label">操作语句：</label>
+							<div class="col-sm-12">
+								<input id="content" name="content" type="text"  class="form-control" th:value="*{content}"/>
+							</div>
+						</div>
+					</form>
+					<h3 id="operAfterTableTitle" style="margin-top:30px"></h3>
+					<table id="operAfterTable" data-mobile-responsive="true">
+					</table>
+
+					<h3 id="operBeforeTableTitle" style="margin-top:30px"
+					></h3>
+					<table id="operBeforeTable" data-mobile-responsive="true">
+					</table>
+					<button type="button" class="btn btn-primary" onclick="fanhui()">返回</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript">
+        $(function() {
+            var type = $("#type").val();
+            if("update" == type){
+                $("#operBeforeTableTitle").text("操作之前数据：");
+                $("#operAfterTableTitle").text("操作之后数据：");
+                operBeforeLoad();
+                operAfterLoad();
+			}else if("delete" == type){
+                $("#operBeforeTableTitle").text("操作之前数据：");
+                operBeforeLoad();
+			}else if("insert" == type){
+                $("#operAfterTableTitle").text("操作之后数据：");
+                operAfterLoad();
+			}
+
+        });
+        function operBeforeLoad(){
+            var id = "[[${record.id}]]";
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : "/oper/history/operBefore?id="+id,
+                async : true,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    showResult(data,"operBeforeTable");
+                }
+            });
+		}
+
+        function operAfterLoad(){
+            var id = "[[${record.id}]]";
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : "/oper/history/operAfter?id="+id,
+                async : true,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+					showResult(data,"operAfterTable");
+				}
+            });
+        }
+
+        function showResult (data,tableId){
+            var columns = [];
+            for (var item in data[0]) {
+                var column = {};
+                column.field = item;
+                column.title = item;
+                columns.push(column);
+            }
+            var listData = [];
+            for (var item in data) {
+                listData.push(data[item]);
+            }
+            var options = {
+                striped : true, // 设置为true会有隔行变色效果
+                exportDataType: "all",   //导出文件方式  支持: 'basic', 'all', 'selected'. basic：本页数据，all，获取服务器所有数据，selected,本页选择行数据
+                showExport: true,  //是否显示导出按钮
+                buttonsAlign:"left",  //按钮位置
+                exportTypes:[ 'csv', 'txt', 'xlsx'],  //导出文件支持: 'json', 'xml', 'png', 'csv', 'txt', 'sql'，'doc', 'excel', 'xlsx', 'pdf'
+                exportOptions:{
+                    fileName: '数据导出',              //文件名称设置
+                    worksheetName: 'Sheet1',          //表格工作区名称
+                    excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],
+                },
+                clickToSelect: true,
+                iconSize : 'outline',
+                columns:columns,
+                data:listData,
+            }
+            $("#" + tableId).bootstrapTable(options);
+		}
+
+		function fanhui(){
+            window.location.href='/oper/execute/history';
+		}
+	</script>
+</body>
+</html>

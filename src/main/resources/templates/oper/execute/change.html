@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+	<div class="content-wrap">
+		<div class="container">
+			<div class="row clearfix" id="">
+				<div class="col-md-12 column" id="element">
+					<form  class="form-horizontal m" id="sqlform">
+						<input type="hidden" th:value="*{datasourceId}" id="datasourceId" name="datasourceId">
+						<input type="hidden" id="operId" name="operId">
+						<input type="hidden" id="type" name="type">
+						<input type="hidden" id="operTable" name="operTable">
+						<div class="form-group">
+							<div class="form-control-static col-sm-offset-9" style="margin-left: -8%;margin-top: -3%;">
+								<button type="button" class="btn btn-primary" id="execute">运行</button>
+								<button type="button" class="btn btn-primary" disabled="disabled" id="commit">提交</button>
+								<button type="button" class="btn btn-primary" disabled="disabled" id="rollback">回滚</button>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-8">
+								<textarea style="width: 183%;margin-left: -112px;margin-top: -20px;font-size: 18px" rows="16" id="content"  name="content"></textarea>
+								<b id="errorMsg"></b>
+							</div>
+						</div>
+					</form>
+					<div class="bootstrap-table" style="    margin-left: -98px;margin-right: -98px;margin-top:-15px">
+						<table id="dataTable" class="table table-hover table-bordered table-striped"></table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript">
+    $("#execute").click(function(){
+        execute();
+    });
+    $("#commit").click(function(){
+        commit();
+    });
+    $("#rollback").click(function(){
+        rollback();
+    });
+
+    function execute(){
+        var dataFormJson=$("#sqlform").serialize();
+        $("#errorMsg").text("");
+        $.ajax({
+            cache : true,
+            type : "POST",
+            url : "/oper/sql/change/execute",
+            data : dataFormJson,
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data.code != "0"){
+                    $("#errorMsg").text(data.msg);
+                }else{
+                    $("#commit").attr("disabled",false);
+                    $("#rollback").attr("disabled",false);
+                    $("#execute").attr("disabled",true);
+                    $("#operId").val(data.operId);
+                    $("#operTable").val(data.operTable);
+                    if(data.data != null){
+                        var type = data.type;
+                        var msg = "";
+                        if("update" == type){
+                            msg = "修改前记录如下，总计："+data.data.length+"条。如需备份点击下载按钮导出备份文件！";
+                        }else if("delete" == type){
+                            msg = "删除前记录如下，总计："+data.data.length+"条。如需备份点击下载按钮导出备份文件！";
+                        }else{
+                            msg = "新增记录如下，总计："+data.data.length+"条。如需备份点击下载按钮导出插入文件！";
+                        }
+                        $("#errorMsg").text(msg);
+                        showResult(data.data);
+					}else{
+                        $("#errorMsg").text("未查询出结果");
+					}
+                }
+            }
+        });
+    }
+    function  showResult(data){
+        $("#dataTable").bootstrapTable('destroy');
+        var columns = [];
+        for (var item in data[0]) {
+            var column = {};
+            column.field = item;
+            column.title = item;
+            columns.push(column);
+        }
+        var listData = [];
+        for (var item in data) {
+            listData.push(data[item]);
+        }
+        var options = {
+            striped : true, // 设置为true会有隔行变色效果
+            exportDataType: "all",   //导出文件方式  支持: 'basic', 'all', 'selected'. basic：本页数据，all，获取服务器所有数据，selected,本页选择行数据
+            showExport: true,  //是否显示导出按钮
+            buttonsAlign:"left",  //按钮位置
+            exportTypes:[ 'csv', 'txt', 'xlsx'],  //导出文件支持: 'json', 'xml', 'png', 'csv', 'txt', 'sql'，'doc', 'excel', 'xlsx', 'pdf'
+            exportOptions:{
+                fileName: '数据导出',              //文件名称设置
+                worksheetName: 'Sheet1',          //表格工作区名称
+                tableName: $("#operTable").val(),   //sql文件中的表明
+                excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],
+            },
+            showToggle:true,
+            clickToSelect: true,
+            iconSize : 'outline',
+            columns:columns,
+            data:listData
+        }
+        $("#dataTable").bootstrapTable(options);
+    }
+
+    function commit(){
+        layer.open({
+            type : 2,
+            title : '数据变更',
+            maxmin : true,
+            shadeClose : false,
+            area : [ '550px', '380px' ],
+            content : "/oper/execute/commit?operId="+$("#operId").val()
+        });
+        $("#dataTable").bootstrapTable('destroy');
+        $("#errorMsg").text("");
+        $("#commit").attr("disabled",true);
+        $("#rollback").attr("disabled",true);
+        $("#execute").attr("disabled",false);
+	}
+
+    function rollback(){
+        var dataFormJson=$("#sqlform").serialize();
+        $("#errorMsg").text("");
+        $.ajax({
+            cache : true,
+            type : "POST",
+            url : "/oper/sql/change/rollback",
+            data : dataFormJson,
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                layer.msg(data.msg);
+                $("#dataTable").bootstrapTable('destroy');
+                $("#commit").attr("disabled",true);
+                $("#rollback").attr("disabled",true);
+                $("#execute").attr("disabled",false);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
