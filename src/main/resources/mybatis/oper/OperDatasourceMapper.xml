@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wugz.oper.dao.OperDatasourceDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wugz.oper.domain.OperDatasource" id="BaseResultMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="descripion" column="descripion" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+		<result property="ip" column="ip" jdbcType="VARCHAR"/>
+		<result property="port" column="port" jdbcType="VARCHAR"/>
+		<result property="databaseName" column="database_name" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="crtTime" column="crt_time" jdbcType="TIMESTAMP"/>
+        <result property="creator" column="creator" jdbcType="VARCHAR"/>
+        <result property="updTime" column="upd_time" jdbcType="TIMESTAMP"/>
+        <result property="updator" column="updator" jdbcType="VARCHAR"/>
+        <result property="orderNum" column="order_num" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+  <sql id="Base_Column_List" >
+        id,name,descripion,url,ip,port,database_name,username,password,type,crt_time,creator,upd_time,updator,order_num,remark
+  </sql>
+
+	<select id="list" resultType="com.wugz.oper.domain.OperDatasource" parameterType="hashmap" >
+		select
+		datasource.id as id,
+		datasource.name as name,
+		datasource.descripion as descripion,
+		datasource.url as url,
+		datasource.type as type,
+		user.username as opername
+		from oper_datasource
+		<where>
+			<if test="id != null">
+				and id = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="name != null">
+				and name = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="descripion != null">
+				and descripion = #{descripion,jdbcType=VARCHAR}
+			</if>
+			<if test="url != null">
+				and url = #{url,jdbcType=VARCHAR}
+			</if>
+
+			<if test="ip != null">
+				and ip = #{ip,jdbcType=VARCHAR}
+			</if>
+			<if test="port != null">
+				and port = #{port,jdbcType=VARCHAR}
+			</if>
+			<if test="databaseName != null">
+				and database_name = #{databaseName,jdbcType=VARCHAR}
+			</if>
+
+			<if test="username != null">
+				and username = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="password != null">
+				and password = #{password,jdbcType=VARCHAR}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=VARCHAR}
+			</if>
+			<if test="crtTime != null">
+				and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="creator != null">
+				and creator = #{creator,jdbcType=VARCHAR}
+			</if>
+			<if test="updTime != null">
+				and upd_time = #{updTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updator != null">
+				and updator = #{updator,jdbcType=VARCHAR}
+			</if>
+			<if test="orderNum != null">
+				and order_num = #{orderNum,jdbcType=INTEGER}
+			</if>
+			<if test="remark != null">
+				and remark = #{remark,jdbcType=VARCHAR}
+			</if>
+		</where> datasource
+		inner join sys_user user on datasource.creator = user.user_id
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="INTEGER" parameterType="hashmap" >
+		select
+		count(1)
+		from oper_datasource
+		<where>
+			<if test="id != null">
+				and id = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="name != null">
+				and name = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="descripion != null">
+				and descripion = #{descripion,jdbcType=VARCHAR}
+			</if>
+			<if test="url != null">
+				and url = #{url,jdbcType=VARCHAR}
+			</if>
+			<if test="ip != null">
+				and ip = #{ip,jdbcType=VARCHAR}
+			</if>
+			<if test="port != null">
+				and port = #{port,jdbcType=VARCHAR}
+			</if>
+			<if test="databaseName != null">
+				and database_name = #{databaseName,jdbcType=VARCHAR}
+			</if>
+			<if test="username != null">
+				and username = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="password != null">
+				and password = #{password,jdbcType=VARCHAR}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=VARCHAR}
+			</if>
+			<if test="crtTime != null">
+				and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="creator != null">
+				and creator = #{creator,jdbcType=VARCHAR}
+			</if>
+			<if test="updTime != null">
+				and upd_time = #{updTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updator != null">
+				and updator = #{updator,jdbcType=VARCHAR}
+			</if>
+			<if test="orderNum != null">
+				and order_num = #{orderNum,jdbcType=INTEGER}
+			</if>
+			<if test="remark != null">
+				and remark = #{remark,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectOneByObject" resultMap="BaseResultMap" parameterType="com.wugz.oper.domain.OperDatasource">
+		select 
+		<include refid="Base_Column_List" />
+		 from oper_datasource
+		 <where>
+		 <if test="id != null">
+        	and id = #{id,jdbcType=INTEGER}
+	  </if>
+		 <if test="name != null">
+        	and name = #{name,jdbcType=VARCHAR}
+	  </if>
+		 <if test="descripion != null">
+        	and descripion = #{descripion,jdbcType=VARCHAR}
+	  </if>
+		 <if test="url != null">
+        	and url = #{url,jdbcType=VARCHAR}
+	  </if>
+			 <if test="ip != null">
+				 and ip = #{ip,jdbcType=VARCHAR}
+			 </if>
+			 <if test="port != null">
+				 and port = #{port,jdbcType=VARCHAR}
+			 </if>
+			 <if test="databaseName != null">
+				 and database_name = #{databaseName,jdbcType=VARCHAR}
+			 </if>
+		 <if test="username != null">
+        	and username = #{username,jdbcType=VARCHAR}
+	  </if>
+		 <if test="password != null">
+        	and password = #{password,jdbcType=VARCHAR}
+	  </if>
+		 <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR}
+	  </if>
+		 <if test="crtTime != null">
+        	and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+	  </if>
+		 <if test="creator != null">
+        	and creator = #{creator,jdbcType=VARCHAR}
+	  </if>
+		 <if test="updTime != null">
+        	and upd_time = #{updTime,jdbcType=TIMESTAMP}
+	  </if>
+		 <if test="updator != null">
+        	and updator = #{updator,jdbcType=VARCHAR}
+	  </if>
+		 <if test="orderNum != null">
+        	and order_num = #{orderNum,jdbcType=INTEGER}
+	  </if>
+		 <if test="remark != null">
+        	and remark = #{remark,jdbcType=VARCHAR}
+	  </if>
+         </where>
+	</select>
+
+	<select id="selectListByObject" resultMap="BaseResultMap" parameterType="com.wugz.oper.domain.OperDatasource" >
+		select 
+		<include refid="Base_Column_List" />
+		 from oper_datasource
+		 <where>
+         <if test="id != null">
+        	and id = #{id,jdbcType=INTEGER}
+         </if>
+         <if test="name != null">
+        	and name = #{name,jdbcType=VARCHAR}
+         </if>
+         <if test="descripion != null">
+        	and descripion = #{descripion,jdbcType=VARCHAR}
+         </if>
+         <if test="url != null">
+        	and url = #{url,jdbcType=VARCHAR}
+         </if>
+			 <if test="ip != null">
+				 and ip = #{ip,jdbcType=VARCHAR}
+			 </if>
+			 <if test="port != null">
+				 and port = #{port,jdbcType=VARCHAR}
+			 </if>
+			 <if test="databaseName != null">
+				 and database_name = #{databaseName,jdbcType=VARCHAR}
+			 </if>
+         <if test="username != null">
+        	and username = #{username,jdbcType=VARCHAR}
+         </if>
+         <if test="password != null">
+        	and password = #{password,jdbcType=VARCHAR}
+         </if>
+         <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR}
+         </if>
+         <if test="crtTime != null">
+        	and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+         </if>
+         <if test="creator != null">
+        	and creator = #{creator,jdbcType=VARCHAR}
+         </if>
+         <if test="updTime != null">
+        	and upd_time = #{updTime,jdbcType=TIMESTAMP}
+         </if>
+         <if test="updator != null">
+        	and updator = #{updator,jdbcType=VARCHAR}
+         </if>
+         <if test="orderNum != null">
+        	and order_num = #{orderNum,jdbcType=INTEGER}
+         </if>
+         <if test="remark != null">
+        	and remark = #{remark,jdbcType=VARCHAR}
+         </if>
+         </where>
+	</select>
+	 
+	<insert id="insert" parameterType="com.wugz.oper.domain.OperDatasource">
+		insert into oper_datasource
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null">
+        	    id ,
+	    </if>
+			<if test="name != null">
+        	    name ,
+	    </if>
+			<if test="descripion != null">
+        	    descripion ,
+	    </if>
+			<if test="url != null">
+        	    url ,
+	    </if>
+			<if test="ip != null">
+				 ip ,
+			</if>
+			<if test="port != null">
+				 port ,
+			</if>
+			<if test="databaseName != null">
+				database_name ,
+			</if>
+			<if test="username != null">
+        	    username ,
+	    </if>
+			<if test="password != null">
+        	    password ,
+	    </if>
+			<if test="type != null">
+        	    type ,
+	    </if>
+			<if test="crtTime != null">
+        	    crt_time ,
+	    </if>
+			<if test="creator != null">
+        	    creator ,
+	    </if>
+			<if test="updTime != null">
+        	    upd_time ,
+	    </if>
+			<if test="updator != null">
+        	    updator ,
+	    </if>
+			<if test="orderNum != null">
+        	    order_num ,
+	    </if>
+			<if test="remark != null">
+        	    remark ,
+	    </if>
+		</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides="," >
+    	    <if test="id != null">
+        	   #{id,jdbcType=INTEGER} ,
+        </if>
+    	    <if test="name != null">
+        	   #{name,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="descripion != null">
+        	   #{descripion,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="url != null">
+        	   #{url,jdbcType=VARCHAR} ,
+        </if>
+			<if test="ip != null">
+				#{ip,jdbcType=VARCHAR},
+			</if>
+			<if test="port != null">
+				#{port,jdbcType=VARCHAR},
+			</if>
+			<if test="databaseName != null">
+				 #{databaseName,jdbcType=VARCHAR},
+			</if>
+    	    <if test="username != null">
+        	   #{username,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="password != null">
+        	   #{password,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="type != null">
+        	   #{type,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="crtTime != null">
+        	   #{crtTime,jdbcType=TIMESTAMP} ,
+        </if>
+    	    <if test="creator != null">
+        	   #{creator,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="updTime != null">
+        	   #{updTime,jdbcType=TIMESTAMP} ,
+        </if>
+    	    <if test="updator != null">
+        	   #{updator,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="orderNum != null">
+        	   #{orderNum,jdbcType=INTEGER} ,
+        </if>
+    	    <if test="remark != null">
+        	   #{remark,jdbcType=VARCHAR} ,
+        </if>
+    	</trim>
+	</insert>
+	 
+	<update id="update" parameterType="com.wugz.oper.domain.OperDatasource">
+		update oper_datasource 
+		<set>
+			<if test="id != null">
+        	 id = #{id,jdbcType=INTEGER} ,
+       </if>
+			<if test="name != null">
+        	 name = #{name,jdbcType=VARCHAR} ,
+       </if>
+			<if test="descripion != null">
+        	 descripion = #{descripion,jdbcType=VARCHAR} ,
+       </if>
+			<if test="url != null">
+        	 url = #{url,jdbcType=VARCHAR} ,
+       </if>
+			<if test="ip != null">
+				 ip = #{ip,jdbcType=VARCHAR} ,
+			</if>
+			<if test="port != null">
+				 port = #{port,jdbcType=VARCHAR} ,
+			</if>
+			<if test="databaseName != null">
+				database_name = #{databaseName,jdbcType=VARCHAR} ,
+			</if>
+			<if test="username != null">
+        	 username = #{username,jdbcType=VARCHAR} ,
+       </if>
+			<if test="password != null">
+        	 password = #{password,jdbcType=VARCHAR} ,
+       </if>
+			<if test="type != null">
+        	 type = #{type,jdbcType=VARCHAR} ,
+       </if>
+			<if test="crtTime != null">
+        	 crt_time = #{crtTime,jdbcType=TIMESTAMP} ,
+       </if>
+			<if test="creator != null">
+        	 creator = #{creator,jdbcType=VARCHAR} ,
+       </if>
+			<if test="updTime != null">
+        	 upd_time = #{updTime,jdbcType=TIMESTAMP} ,
+       </if>
+			<if test="updator != null">
+        	 updator = #{updator,jdbcType=VARCHAR} ,
+       </if>
+			<if test="orderNum != null">
+        	 order_num = #{orderNum,jdbcType=INTEGER} ,
+       </if>
+			<if test="remark != null">
+        	 remark = #{remark,jdbcType=VARCHAR} ,
+       </if>
+		</set>
+		where id= #{id}
+	</update>
+
+
+	<update id="delete" parameterType="java.lang.Integer">
+		delete from oper_datasource
+		where id= #{id}
+	</update>
+</mapper>

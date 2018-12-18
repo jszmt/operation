@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wugz.oper.dao.OperSqlInvokeRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wugz.oper.domain.OperSqlInvokeRecord" id="BaseResultMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="applCde" column="appl_cde" jdbcType="VARCHAR"/>
+		<result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="datasourceId" column="datasource_id" jdbcType="VARCHAR"/>
+        <result property="operTables" column="oper_tables" jdbcType="VARCHAR"/>
+        <result property="operColumns" column="oper_columns" jdbcType="VARCHAR"/>
+        <result property="operWhere" column="oper_where" jdbcType="VARCHAR"/>
+        <result property="operBefore" column="oper_before" jdbcType="VARCHAR"/>
+        <result property="operAfter" column="oper_after" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="crtTime" column="crt_time" jdbcType="TIMESTAMP"/>
+        <result property="creator" column="creator" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+  <sql id="Base_Column_List" >
+        id,type,appl_cde,datasource_id,status,oper_tables,oper_columns,oper_where,oper_before,oper_after,content,crt_time,creator,remark
+  </sql>
+
+	<select id="list" resultType="com.wugz.oper.domain.OperSqlInvokeRecord" parameterType="hashmap" >
+		select
+		record.id as id,
+		record.type as type,
+		record.appl_cde as applCde,
+		record.status as status,
+		record.oper_tables as operTables,
+		record.crt_time as crtTime,
+		datasource.name as dataSourceName
+		from (select *from oper_sql_invoke_record
+		<where>
+			<if test="id != null">
+				and id = #{id,jdbcType=VARCHAR}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=VARCHAR}
+			</if>
+			<if test="applCde != null">
+				and appl_cde = #{applCde,jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status,jdbcType=VARCHAR}
+			</if>
+			<if test="datasourceId != null">
+				and datasource_id = #{datasourceId,jdbcType=VARCHAR}
+			</if>
+			<if test="operTables != null">
+				and oper_tables = #{operTables,jdbcType=VARCHAR}
+			</if>
+			<if test="operColumns != null">
+				and oper_columns = #{operColumns,jdbcType=VARCHAR}
+			</if>
+			<if test="operWhere != null">
+				and oper_where = #{operWhere,jdbcType=VARCHAR}
+			</if>
+			<if test="operBefore != null">
+				and oper_before = #{operBefore,jdbcType=VARCHAR}
+			</if>
+			<if test="operAfter != null">
+				and oper_after = #{operAfter,jdbcType=VARCHAR}
+			</if>
+			<if test="content != null">
+				and content = #{content,jdbcType=VARCHAR}
+			</if>
+			<if test="crtTime != null">
+				and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="creator != null">
+				and creator = #{creator,jdbcType=VARCHAR}
+			</if>
+			<if test="remark != null">
+				and remark = #{remark,jdbcType=VARCHAR}
+			</if>
+		</where> ) record
+		inner join oper_datasource datasource on record.datasource_id = datasource.id
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by record.crt_time desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="INTEGER" parameterType="hashmap" >
+		select
+		count(1)
+		from oper_sql_invoke_record
+		<where>
+			<if test="id != null">
+				and id = #{id,jdbcType=VARCHAR}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=VARCHAR}
+			</if>
+			<if test="applCde != null">
+				and appl_cde = #{applCde,jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status,jdbcType=VARCHAR}
+			</if>
+			<if test="datasourceId != null">
+				and datasource_id = #{datasourceId,jdbcType=VARCHAR}
+			</if>
+			<if test="operTables != null">
+				and oper_tables = #{operTables,jdbcType=VARCHAR}
+			</if>
+			<if test="operColumns != null">
+				and oper_columns = #{operColumns,jdbcType=VARCHAR}
+			</if>
+			<if test="operWhere != null">
+				and oper_where = #{operWhere,jdbcType=VARCHAR}
+			</if>
+			<if test="operBefore != null">
+				and oper_before = #{operBefore,jdbcType=VARCHAR}
+			</if>
+			<if test="operAfter != null">
+				and oper_after = #{operAfter,jdbcType=VARCHAR}
+			</if>
+			<if test="content != null">
+				and content = #{content,jdbcType=VARCHAR}
+			</if>
+			<if test="crtTime != null">
+				and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="creator != null">
+				and creator = #{creator,jdbcType=VARCHAR}
+			</if>
+			<if test="remark != null">
+				and remark = #{remark,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectOneByObject" resultMap="BaseResultMap" parameterType="com.wugz.oper.domain.OperSqlInvokeRecord">
+		select 
+		<include refid="Base_Column_List" />
+		 from oper_sql_invoke_record
+		 <where>
+		 <if test="id != null">
+        	and id = #{id,jdbcType=VARCHAR}
+	  </if>
+		 <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR}
+	  </if>
+		 <if test="applCde != null">
+        	and appl_cde = #{applCde,jdbcType=VARCHAR}
+	  </if>
+		 <if test="status != null">
+			 and status = #{status,jdbcType=VARCHAR}
+		 </if>
+		 <if test="datasourceId != null">
+        	and datasource_id = #{datasourceId,jdbcType=VARCHAR}
+	  </if>
+		 <if test="operTables != null">
+        	and oper_tables = #{operTables,jdbcType=VARCHAR}
+	  </if>
+		 <if test="operColumns != null">
+        	and oper_columns = #{operColumns,jdbcType=VARCHAR}
+	  </if>
+		 <if test="operWhere != null">
+        	and oper_where = #{operWhere,jdbcType=VARCHAR}
+	  </if>
+		 <if test="operBefore != null">
+        	and oper_before = #{operBefore,jdbcType=VARCHAR}
+	  </if>
+		 <if test="operAfter != null">
+        	and oper_after = #{operAfter,jdbcType=VARCHAR}
+	  </if>
+		 <if test="content != null">
+        	and content = #{content,jdbcType=VARCHAR}
+	  </if>
+		 <if test="crtTime != null">
+        	and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+	  </if>
+		 <if test="creator != null">
+        	and creator = #{creator,jdbcType=VARCHAR}
+	  </if>
+		 <if test="remark != null">
+        	and remark = #{remark,jdbcType=VARCHAR}
+	  </if>
+         </where>
+	</select>
+
+	<select id="selectListByObject" resultMap="BaseResultMap" parameterType="com.wugz.oper.domain.OperSqlInvokeRecord" >
+		select 
+		<include refid="Base_Column_List" />
+		 from oper_sql_invoke_record
+		 <where>
+         <if test="id != null">
+        	and id = #{id,jdbcType=VARCHAR}
+         </if>
+         <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR}
+         </if>
+         <if test="applCde != null">
+        	and appl_cde = #{applCde,jdbcType=VARCHAR}
+         </if>
+			 <if test="status != null">
+				 and status = #{status,jdbcType=VARCHAR}
+			 </if>
+         <if test="datasourceId != null">
+        	and datasource_id = #{datasourceId,jdbcType=VARCHAR}
+         </if>
+         <if test="operTables != null">
+        	and oper_tables = #{operTables,jdbcType=VARCHAR}
+         </if>
+         <if test="operColumns != null">
+        	and oper_columns = #{operColumns,jdbcType=VARCHAR}
+         </if>
+         <if test="operWhere != null">
+        	and oper_where = #{operWhere,jdbcType=VARCHAR}
+         </if>
+         <if test="operBefore != null">
+        	and oper_before = #{operBefore,jdbcType=VARCHAR}
+         </if>
+         <if test="operAfter != null">
+        	and oper_after = #{operAfter,jdbcType=VARCHAR}
+         </if>
+         <if test="content != null">
+        	and content = #{content,jdbcType=VARCHAR}
+         </if>
+         <if test="crtTime != null">
+        	and crt_time = #{crtTime,jdbcType=TIMESTAMP}
+         </if>
+         <if test="creator != null">
+        	and creator = #{creator,jdbcType=VARCHAR}
+         </if>
+         <if test="remark != null">
+        	and remark = #{remark,jdbcType=VARCHAR}
+         </if>
+         </where>
+	</select>
+	 
+	<insert id="insert" parameterType="com.wugz.oper.domain.OperSqlInvokeRecord">
+		insert into oper_sql_invoke_record
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null">
+        	    id ,
+	    </if>
+			<if test="type != null">
+        	    type ,
+	    </if>
+			<if test="applCde != null">
+        	    appl_cde ,
+	    </if>
+			<if test="status != null">
+				status ,
+			</if>
+			<if test="datasourceId != null">
+        	    datasource_id ,
+	    </if>
+			<if test="operTables != null">
+        	    oper_tables ,
+	    </if>
+			<if test="operColumns != null">
+        	    oper_columns ,
+	    </if>
+			<if test="operWhere != null">
+        	    oper_where ,
+	    </if>
+			<if test="operBefore != null">
+        	    oper_before ,
+	    </if>
+			<if test="operAfter != null">
+        	    oper_after ,
+	    </if>
+			<if test="content != null">
+        	    content ,
+	    </if>
+			<if test="crtTime != null">
+        	    crt_time ,
+	    </if>
+			<if test="creator != null">
+        	    creator ,
+	    </if>
+			<if test="remark != null">
+        	    remark ,
+	    </if>
+		</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides="," >
+    	    <if test="id != null">
+        	   #{id,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="type != null">
+        	   #{type,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="applCde != null">
+        	   #{applCde,jdbcType=VARCHAR} ,
+        </if>
+			<if test="status != null">
+			   #{status,jdbcType=VARCHAR} ,
+			</if>
+    	    <if test="datasourceId != null">
+        	   #{datasourceId,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="operTables != null">
+        	   #{operTables,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="operColumns != null">
+        	   #{operColumns,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="operWhere != null">
+        	   #{operWhere,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="operBefore != null">
+        	   #{operBefore,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="operAfter != null">
+        	   #{operAfter,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="content != null">
+        	   #{content,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="crtTime != null">
+        	   #{crtTime,jdbcType=TIMESTAMP} ,
+        </if>
+    	    <if test="creator != null">
+        	   #{creator,jdbcType=VARCHAR} ,
+        </if>
+    	    <if test="remark != null">
+        	   #{remark,jdbcType=VARCHAR} ,
+        </if>
+    	</trim>
+	</insert>
+	 
+	<update id="update" parameterType="com.wugz.oper.domain.OperSqlInvokeRecord">
+		update oper_sql_invoke_record 
+		<set>
+			<if test="id != null">
+        	 id = #{id,jdbcType=VARCHAR} ,
+       </if>
+			<if test="type != null">
+        	 type = #{type,jdbcType=VARCHAR} ,
+       </if>
+			<if test="applCde != null">
+        	 appl_cde = #{applCde,jdbcType=VARCHAR} ,
+       </if>
+			<if test="status != null">
+			 status = #{status,jdbcType=VARCHAR} ,
+			</if>
+			<if test="datasourceId != null">
+        	 datasource_id = #{datasourceId,jdbcType=VARCHAR} ,
+       </if>
+			<if test="operTables != null">
+        	 oper_tables = #{operTables,jdbcType=VARCHAR} ,
+       </if>
+			<if test="operColumns != null">
+        	 oper_columns = #{operColumns,jdbcType=VARCHAR} ,
+       </if>
+			<if test="operWhere != null">
+        	 oper_where = #{operWhere,jdbcType=VARCHAR} ,
+       </if>
+			<if test="operBefore != null">
+        	 oper_before = #{operBefore,jdbcType=VARCHAR} ,
+       </if>
+			<if test="operAfter != null">
+        	 oper_after = #{operAfter,jdbcType=VARCHAR} ,
+       </if>
+			<if test="content != null">
+        	 content = #{content,jdbcType=VARCHAR} ,
+       </if>
+			<if test="crtTime != null">
+        	 crt_time = #{crtTime,jdbcType=TIMESTAMP} ,
+       </if>
+			<if test="creator != null">
+        	 creator = #{creator,jdbcType=VARCHAR} ,
+       </if>
+			<if test="remark != null">
+        	 remark = #{remark,jdbcType=VARCHAR} ,
+       </if>
+		</set>
+		where id= #{id}
+	</update>
+</mapper>
