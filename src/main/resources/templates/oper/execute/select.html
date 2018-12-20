@@ -39,6 +39,7 @@
 
 	function execute(){
         var dataFormJson=$("#sqlform").serialize();
+        $("#errorMsg").text("");
         $.ajax({
             cache : true,
             type : "POST",
@@ -50,7 +51,6 @@
             },
             success : function(data) {
                 if(data.code != "0"){
-                    $("#errorMsg").text("");
                     $("#errorMsg").text(data.msg);
 				}else{
                     showResult(data.data)
