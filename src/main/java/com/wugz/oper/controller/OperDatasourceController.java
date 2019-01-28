@@ -234,8 +234,28 @@ public class OperDatasourceController extends BaseController {
 
 
 	private String getDataSourceURL(OperDatasource operDatasource) {
-		return "jdbc:"+operDatasource.getType()+"://"+operDatasource.getIp()
-				+":"+operDatasource.getPort()+"/"+operDatasource.getDatabaseName()+"?characterEncoding=utf8";
+		StringBuilder url = new StringBuilder();
+		//mysql
+		if(DBUtils.DATABASE_MYSQL.equals(operDatasource.getType())){
+			url.append("jdbc:mysql://")
+					.append(operDatasource.getIp())
+					.append(":")
+					.append(operDatasource.getPort())
+					.append("/")
+					.append(operDatasource.getDatabaseName())
+					.append("?characterEncoding=utf8");
+		//oracle
+		}else if(DBUtils.DATABASE_ORACLE.equals(operDatasource.getType())){
+			url.append("jdbc:oracle:thin:@//")
+					.append(operDatasource.getIp())
+					.append(":")
+					.append(operDatasource.getPort())
+					.append("/")
+					.append(operDatasource.getDatabaseName());
+		}else{
+			System.out.println("不支持的数据类型："+operDatasource.getType());
+		}
+		return url.toString();
 	}
 	
 }

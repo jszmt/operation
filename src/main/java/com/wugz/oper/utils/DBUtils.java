@@ -112,13 +112,13 @@ public class DBUtils {
     }
 
 
-    /*
-     * @author wuguizhen
+    /**
+     * @Author wugz
      * @Description 获取数据库连接
-     * @date 2018/9/13 11:13
-     * @param [url, user, password]
+     * @Date  2019/1/28 10:04
+     * @Param [databaseType, url, user, password, autoCommit]
      * @return java.sql.Connection
-     */
+     **/
     public static Connection getConnection(String databaseType,String url,String user,String password,boolean autoCommit)throws Exception{
         Connection conn = null;
         String driver = DATABASE_MYSQL.equals(databaseType)?MYSQL_DRIVER:ORACLE_DRIVER;
